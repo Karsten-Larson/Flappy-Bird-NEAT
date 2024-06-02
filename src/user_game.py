@@ -1,4 +1,3 @@
-from typing import List
 import pygame
 
 import settings
@@ -9,10 +8,10 @@ from game import Game
 
 class UserGame(Game):
 
-    def __init__(self):
-        super().__init__(headless=False)
+    def __init__(self, *, headless: bool):
+        super().__init__(headless=headless)
 
-    def _gen_birds(self) -> List[Bird]:
+    def _gen_birds(self) -> list[Bird]:
         return [Bird(
             settings.SCREEN_SIZE.x / 2 - settings.BIRD_SIZE.x / 2,
             settings.SCREEN_SIZE.y / 4 + settings.SCREEN_SIZE.y / 2 / 100 * offset
@@ -43,5 +42,5 @@ class UserGame(Game):
 
 
 if __name__ == "__main__":
-    with UserGame() as game:
+    with UserGame(headless=False) as game:
         game.run()

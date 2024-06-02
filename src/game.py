@@ -1,4 +1,3 @@
-from typing import List
 import abc
 import pygame
 
@@ -24,15 +23,15 @@ class Game(abc.ABC):
 
     def __gen_game_objects(self) -> None:
         # Create game objects
-        self._birds: List[Bird] = self._gen_birds()
+        self._birds: list[Bird] = self._gen_birds()
         self._birds_alive = len(self._birds)
 
-        self._pipes: List[Pipes] = [
+        self._pipes: list[Pipes] = [
             Pipes(settings.PIPE_INITIAL_X), Pipes(settings.PIPE_INITIAL_X * 2)]
-        self._bases: List[Base] = [Base(x) for x in range(-10, 336 * 4, 336)]
+        self._bases: list[Base] = [Base(x) for x in range(-10, 336 * 4, 336)]
 
     @abc.abstractmethod
-    def _gen_birds(self) -> List[Bird]:
+    def _gen_birds(self) -> list[Bird]:
         pass
 
     @abc.abstractmethod
@@ -54,7 +53,7 @@ class Game(abc.ABC):
     def _display_text(self) -> None:
         pass
 
-    def __get_entities(self) -> List[Entity]:
+    def __get_entities(self) -> list[Entity]:
         return [*self._pipes, *self._bases, *self._birds]
 
     def run(self) -> None:
@@ -63,9 +62,6 @@ class Game(abc.ABC):
         self._running = True
 
         while self._running:
-            # Control all user input functionality
-            self._input()
-
             if not self._headless:
                 # fill the screen with a color to wipe away anything from last frame
                 pygame.Surface.blit(
@@ -104,6 +100,9 @@ class Game(abc.ABC):
 
                 # limits FPS to 60, dt is delta time in seconds since last frame, used for framerate
                 self._dt = self._clock.tick(settings.FRAME_RATE) / 1000
+
+            # Control all user input functionality
+            self._input()
 
     def __enter__(self) -> None:
         # Start the graphics if necessary
