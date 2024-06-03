@@ -90,6 +90,8 @@ class NeatGame(Game):
             f"Birds: {self._birds_alive}", True, (255, 255, 255)), (30, 45))
         self._screen.blit(self._font.render(
             f"Gen: {self._generation}", True, (255, 255, 255)), (30, 80))
+        self._screen.blit(self._font.render(
+            f"Fit: {max(bird._genome.fitness for bird in self._birds)}", True, (255, 255, 255)), (30, 115))
 
     def run(self, genomes: tuple[str, neat.genome.DefaultGenome], config: neat.config.Config) -> None:
         NeatGame._generation += 1
@@ -125,4 +127,4 @@ if __name__ == "__main__":
     population: neat.Population = neat.Population(config)
 
     with NeatGame(headless=False) as game:
-        population.run(game.run, 50)
+        population.run(game.run, 10)
