@@ -19,16 +19,18 @@ class Game(abc.ABC):
         self._running: bool = True
         self._dt: float = 1 / settings.FRAME_RATE
         self._headless: bool = headless
-        self._birds_alive: int = 0
 
     def __gen_game_objects(self) -> None:
         # Create game objects
         self._birds: list[Bird] = self._gen_birds()
-        self._birds_alive = len(self._birds)
 
         self._pipes: list[Pipes] = [
             Pipes(settings.PIPE_INITIAL_X), Pipes(settings.PIPE_INITIAL_X * 2)]
         self._bases: list[Base] = [Base(x) for x in range(-10, 336 * 4, 336)]
+
+    @property
+    def birds_alive(self) -> int:
+        return sum(1 for bird in self._birds if bird.is_alive)
 
     @abc.abstractmethod
     def _gen_birds(self) -> list[Bird]:
@@ -68,7 +70,7 @@ class Game(abc.ABC):
                     self._screen, Game._BACKGROUND_IMG, (0, 0))
 
             # Checks to see if the birds still exist
-            if self._birds_alive == 0:
+            if self.birds_alive == 0:
                 self._running = False
 
             # Update all entity positions and draw them
@@ -87,9 +89,8 @@ class Game(abc.ABC):
 
             for object in [*self._bases, *self._pipes]:
                 for bird in self._birds:
-                    if bird.is_alive() and object.collides(bird):
+                    if bird.is_alive and object.collides(bird):
                         bird.kill()
-                        self._birds_alive -= 1
 
             # Draw things to the screen
             if not self._headless:
@@ -122,5 +123,7 @@ class Game(abc.ABC):
         self.close()
 
     def close(self) -> None:
+        self._running = False
+
         if not self._headless:
             pygame.quit()

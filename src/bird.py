@@ -34,6 +34,7 @@ class Bird(Entity):
     def index(self) -> int:
         return self._index
 
+    @property
     def is_alive(self) -> bool:
         return self._alive
 

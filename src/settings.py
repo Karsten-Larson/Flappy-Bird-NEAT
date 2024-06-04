@@ -3,7 +3,7 @@ from pathlib import Path
 
 # path to all game image folder
 ASSETS_PATH: Path = Path(__file__).parent.parent / "sprites"
-FRAME_RATE: float = 60.0
+FRAME_RATE: float = 120.0
 
 # screen size
 SCREEN_SIZE: pygame.Vector2 = pygame.Vector2(500, 500)

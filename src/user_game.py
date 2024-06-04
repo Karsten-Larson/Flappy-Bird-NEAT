@@ -38,7 +38,7 @@ class UserGame(Game):
         self._screen.blit(self._font.render(
             f"FPS: {round(self._clock.get_fps(), 1)}", True, (255, 255, 255)), (30, 10))
         self._screen.blit(self._font.render(
-            f"Birds: {self._birds_alive}", True, (255, 255, 255)), (30, 45))
+            f"Birds: {self.birds_alive}", True, (255, 255, 255)), (30, 45))
 
 
 if __name__ == "__main__":
