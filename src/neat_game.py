@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 import neat.config
 import neat.genome
 import neat.population
@@ -39,7 +41,7 @@ class NeatBird(Bird):
             self.kill()
             return
 
-        self._genome.fitness += 1
+        self._genome.fitness += max(1, 1 * self._genome.fitness / 10_000)
 
         output: float = self._net.activate(activation_tuple)[0]
 
@@ -53,12 +55,14 @@ class NeatGame(Game):
         self._config: neat.config.Config = config
         self._population: neat.Population = neat.Population(config)
 
+        self._progress_bar: tqdm | None = None
+
         # start normal game operation
         super().__init__(headless=headless)
 
     def _gen_birds(self) -> list[Bird]:
         # set the maximum value birds can get to
-        NeatBird.fitness_threshold = self._config.fitness_threshold
+        NeatBird.fitness_threshold = self._config.fitness_threshold * 2
 
         return [NeatBird(
             settings.SCREEN_SIZE.x / 2 - settings.BIRD_SIZE.x / 2,
@@ -85,8 +89,11 @@ class NeatGame(Game):
             if keys[pygame.K_n]:
                 self._running = False
 
+        # ground height
+        ground_height: float = self._bases[0].y
+
         # find nearest pipe to the birds
-        nearest_pipe: Pipes = min(self._pipes,
+        nearest_pipe: Pipes = min((pipe for pipe in self._pipes if pipe.x + pipe.width > self._birds[0].x),
                                   key=lambda pipe: abs(pipe.x - self._birds[0].x))
 
         # Create the input based on nearest pipe information
@@ -95,10 +102,13 @@ class NeatGame(Game):
             bottom_pipe_difference: float = nearest_pipe.bottom_pipe.y - bird.y
             top_pipe_difference: float = nearest_pipe.top_pipe.y + \
                 nearest_pipe.top_pipe.height - bird.y
+            ground_difference: float = ground_height - bird.y
 
             # Allows the bird to jump up
             bird.think(
-                (horizontal_difference, bottom_pipe_difference, top_pipe_difference)
+                (
+                    horizontal_difference, top_pipe_difference, bottom_pipe_difference, ground_difference, bird.velocity.y, nearest_pipe.velocity.x
+                )
             )
 
     def _display_text(self) -> None:
@@ -117,7 +127,7 @@ class NeatGame(Game):
 
         # split genomes into their respective lists
         for genome_id, genome in genomes:
-            genome.fitness = 0
+            genome.fitness = 0.0
             self._genomes.append(genome)
 
             net: neat.nn.FeedForwardNetwork = neat.nn.FeedForwardNetwork.create(
@@ -125,17 +135,25 @@ class NeatGame(Game):
             self._nets.append(net)
 
         super().run()
+        self._progress_bar.update(1)
 
-    def run(self, *, generations: int) -> None:
+    def run(self, *, generations: int):
         if generations <= 0:
             raise ValueError("Generations must be a positive number")
 
-        self._population.run(self.__eval_gen, generations)
+        self._progress_bar: tqdm = tqdm(total=generations)
+
+        best_genome = self._population.run(self.__eval_gen, generations)
+
+        self._progress_bar.close()
 
         print(f"Generations Completely Ran: {self._population.generation}")
 
+        return best_genome
+
 
 if __name__ == "__main__":
+    import pickle
     from pathlib import Path
 
     config_path: Path = Path(
@@ -149,5 +167,13 @@ if __name__ == "__main__":
         config_path
     )
 
-    with NeatGame(headless=False, config=config) as game:
-        game.run(generations=10)
+    with NeatGame(headless=True, config=config) as game:
+        best_genome = game.run(generations=50)
+        best_net: neat.nn.FeedForwardNetwork = neat.nn.FeedForwardNetwork.create(
+            best_genome, config)
+
+        pickle_save_path: Path = Path(
+            __file__).parent.resolve() / "neat_player.pkl"
+
+        pickle.dump(NeatBird(0, 0, genome=best_genome, net=best_net),
+                    open(pickle_save_path, 'wb'), pickle.HIGHEST_PROTOCOL)

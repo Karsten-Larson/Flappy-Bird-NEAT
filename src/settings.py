@@ -3,7 +3,7 @@ from pathlib import Path
 
 # path to all game image folder
 ASSETS_PATH: Path = Path(__file__).parent.parent / "sprites"
-FRAME_RATE: float = 120.0
+FRAME_RATE: float = 60.0
 
 # screen size
 SCREEN_SIZE: pygame.Vector2 = pygame.Vector2(500, 500)
@@ -25,6 +25,7 @@ PIPE_HEIGHTS: list[float] = list(range(0, 275, 25))
 # pipe movement
 PIPE_INITIAL_X: float = SCREEN_SIZE.x
 PIPE_VELOCITY: pygame.Vector2 = pygame.Vector2(-100, 0)
+PIPE_ACCELERATION: pygame.Vector2 = pygame.Vector2(-0.03, 0)
 
 # base size
 BASE_SIZE: pygame.Vector2 = pygame.Vector2(336, 112)
@@ -34,4 +35,4 @@ BASE_SIZE: pygame.Vector2 = pygame.Vector2(336, 112)
 BASE_VELOCITY: pygame.Vector2 = PIPE_VELOCITY.copy()
 
 # neat controls
-NEAT_THRESHOLD: float = 0.5
+NEAT_THRESHOLD: float = 0.9

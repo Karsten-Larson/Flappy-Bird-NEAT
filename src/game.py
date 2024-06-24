@@ -81,15 +81,19 @@ class Game(abc.ABC):
                     entity.draw(self._screen)
 
             # Loop pipes back to the beginning
-            for pipe in self._pipes:
+            for pipe in self._pipes.copy():
+                # Accelerate the pipes
+                pipe.velocity += settings.PIPE_ACCELERATION
+
                 if pipe.x + pipe.width <= 0:
                     self._pipes.remove(pipe)
                     self._pipes.append(
                         Pipes(settings.PIPE_INITIAL_X * (len(self._pipes) + 1)))
+                    self._pipes[-1].velocity = pipe.velocity
 
             for object in [*self._bases, *self._pipes]:
                 for bird in self._birds:
-                    if bird.is_alive and object.collides(bird):
+                    if bird.is_alive and object.collides(bird) or bird.y <= 0:
                         bird.kill()
 
             # Draw things to the screen
