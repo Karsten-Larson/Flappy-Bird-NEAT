@@ -157,7 +157,7 @@ if __name__ == "__main__":
     from pathlib import Path
 
     config_path: Path = Path(
-        "/home/karsten/Coding/Python/Flappy Bird/src/neat-config.txt")
+        "/home/karsten/Coding/Python/Flappy Bird/src/neat-config.cfg")
 
     config: neat.config.Config = neat.config.Config(
         neat.DefaultGenome,

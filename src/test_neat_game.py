@@ -34,8 +34,14 @@ if __name__ == "__main__":
     pickle_save_path: Path = Path(
         __file__).parent.resolve() / "neat_player.pkl"
 
-    bird: NeatBird = pickle.load(open(pickle_save_path, 'rb'))
-    bird._genome.fitness = 0
+    # Ensure the pickle file exists before running the game
+    try:
+        bird: NeatBird = pickle.load(open(pickle_save_path, 'rb'))
+        bird._genome.fitness = 0
 
-    with TestNeatGame(headless=False, bird=bird) as game:
-        game.run()
+        with TestNeatGame(headless=False, bird=bird) as game:
+            game.run()
+
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "neat_game.py must be ran before test_neat_game.py. No previous best NEAT bird pickle file exists yet")
